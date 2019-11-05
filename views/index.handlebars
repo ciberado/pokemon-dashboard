@@ -49,43 +49,68 @@
 <img id="capsidelogo" src="img/avatar-capside.png" alt="capside logo" />
 <img id="pokemonlogo" src="img/pokemon-logo.svg" alt="pokemon logo" />
 <div id="cards"></div>
-<div id="version">0.0.1</div>
+<div id="version">0.0.1 dashboard</div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
 <script>
 
-const tracked = {};
+
+const $trackedCards = {};
 
 function createNewCard(element) {
     const card = $('<div>')
         .addClass('card')
-        .css('opacity' : 0)
+        .css('display', 'none')
+        .append($('<img>')
+                    .attr('src', `img/pokemon/${element.info}.png`)
+                    .attr('alt', `${element.label} image.`))
         .append($('<h2>').text(element.label))
-        .append($('<p>').text(element.info));
+        .append($('<p>').text(element.id));
     return card;
 }
 
 
 async function processElement(element) {
-    if (!tracked[element.id]) {
-        tracked[element.id] = element;
-        element.card$ = createNewCard(element);
-        element.card$
-            .appendTo('.cards')
+    if (!trackedCards$[element.id]) {
+        console.log(`New element detected: ${element.id}.`);
+        $trackedCard = createNewCard(element);
+        $trackedCard
+            .appendTo('#cards')
             .fadeIn();
-    }
-        
-    if (Date.now - element.timestamp > 1000*5) {
-        await element.card.fadeOut().promise();
+        $trackedCards[element.id] = $trackedCard;
+    } else if (Date.now - element.timestamp > 1000*5) {
+        console.log(`Removing element ${element.id}.`);
+        await $trackedCards.fadeOut().promise();
         element.card.remove();
         delete tracked[element.id];
+    } else {
+        console.log('BEAT');
+        await $trackedCards[element.id].animate({'width': '+=20'}).promise();
+        await $trackedCards[element.id].animate({'width': '-=20'}).promise();
     }
     
 }
 
-
+$(function () {
+    var socket = io();
+    socket.on('healthbeat', function(msg){
+        const beat = msg.beat;
+        // healthbeat message example: 
+        //{"beat":{"ip":"52.157.97.226","info":{"pokemon":{"id":"393","name":"Piplup"}},"timestamp":1572966268703}}
+        const element = {
+            id : beat.ip,
+            label : beat.info.pokemon.name,
+            info : beat.info.pokemon.id,
+            timestamp : beat.timestamp
+        };
+        processElement(element);
+    });
+});
 
 
 

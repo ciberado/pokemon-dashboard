@@ -15,7 +15,7 @@ async function processMessages() {
         return;
       }
       const deletePromises = [];
-      console.log(`${results.length} messages retrieved from ${QUEUE_NAME}.`);
+      //console.log(`${results.length} messages retrieved from ${QUEUE_NAME}.`);
       results.forEach(async message => {
         eventEmitter.emit(NEW_BEAT_RECEIVED_EVENT, JSON.parse(message.messageText));
         const currentMessagePromise = new Promise(function(resolve, reject) {
@@ -32,7 +32,6 @@ async function processMessages() {
       });
       try {
         await Promise.all(deletePromises);
-        console.log(`Message batch processed.`);
         resolve();
       } catch (error) {
         reject(error);

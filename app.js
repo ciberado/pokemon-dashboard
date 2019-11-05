@@ -5,6 +5,8 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const exphbs  = require('express-handlebars');
 
+const socketio = require('socket.io');
+
 const monitor = require('./monitor.js');
 
 
@@ -89,13 +91,26 @@ app.use((err, req, res, next) => {
 
 app.set('port', process.env.PORT || 80);
 
-var server = app.listen(app.get('port'), function() {
+const server = app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + server.address().port);
 });
 
-monitor.on(monitor.NEW_BEAT_RECEIVED_EVENT, message => {
-  console.log('MESSAGE!!!!!!! ' + JSON.stringify(message));
+const io = socketio.listen(server);
+console.log('Creating websocket server.');
+let websockets = [];
+io.sockets.on('connection', function(socket){
+  console.log('New websocket client connection stablished.');
+  websockets.push(socket);
 });
+io.sockets.on('disconnect', function(socket){
+  console.log('Client disconnected.');
+  websockets =  websockets.filter(s => s != socket);
+});
+
+monitor.on(monitor.NEW_BEAT_RECEIVED_EVENT, message => {
+  websockets.forEach(socket => socket.emit('healthbeat', message))
+});
+
 monitor.start();
 
 module.exports = app;
