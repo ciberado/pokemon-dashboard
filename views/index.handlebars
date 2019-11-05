@@ -1,0 +1,92 @@
+<style>
+    body {
+        overflow: hidden;
+    }
+
+    #capsidelogo {
+        position: absolute;
+        right: 1em;
+        bottom: 1em;
+        width: 300px;
+        padding: 0;
+    }
+
+    #version {
+        position: absolute;
+        left: 1em;
+        bottom: 1em;
+        width: 300px;
+        padding: 0;
+        font-size: 4em;
+        font-weight: bold;
+        color: silver;
+    }
+
+    #pokemonlogo {
+        position: absolute;
+        width: 98%;
+        margin: 0 auto;
+        z-index: -10;
+        opacity: 0.4;
+    }
+
+
+    .card {
+        width : 80px;
+        height: 120px;
+    }
+
+    .card h1 {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .card p {
+
+    }
+</style>
+<img id="capsidelogo" src="img/avatar-capside.png" alt="capside logo" />
+<img id="pokemonlogo" src="img/pokemon-logo.svg" alt="pokemon logo" />
+<div id="cards"></div>
+<div id="version">0.0.1</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+<script>
+
+const tracked = {};
+
+function createNewCard(element) {
+    const card = $('<div>')
+        .addClass('card')
+        .css('opacity' : 0)
+        .append($('<h2>').text(element.label))
+        .append($('<p>').text(element.info));
+    return card;
+}
+
+
+async function processElement(element) {
+    if (!tracked[element.id]) {
+        tracked[element.id] = element;
+        element.card$ = createNewCard(element);
+        element.card$
+            .appendTo('.cards')
+            .fadeIn();
+    }
+        
+    if (Date.now - element.timestamp > 1000*5) {
+        await element.card.fadeOut().promise();
+        element.card.remove();
+        delete tracked[element.id];
+    }
+    
+}
+
+
+
+
+
+</script>
