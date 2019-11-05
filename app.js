@@ -5,6 +5,8 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const exphbs  = require('express-handlebars');
 
+const monitor = require('./monitor.js');
+
 
 const app = express();
 
@@ -90,5 +92,10 @@ app.set('port', process.env.PORT || 80);
 var server = app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + server.address().port);
 });
+
+monitor.on(monitor.NEW_BEAT_RECEIVED_EVENT, message => {
+  console.log('MESSAGE!!!!!!! ' + JSON.stringify(message));
+});
+monitor.start();
 
 module.exports = app;
