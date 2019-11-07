@@ -32,19 +32,29 @@
 
 
     .card {
-        width : 80px;
-        height: 120px;
+        display: inline-block;
+        opacity: 0.8;
+        margin : 1px;
+        width : 100px;
+        height: 100px;
+        border-radius: 50%;
+        background-color : rgba(224, 189, 31, 0.726);
+        border: 2px solid rgba(204, 0, 0, 0.726);
+        transition: all 0.2s ease-in-out;
+        text-align: center;        
     }
 
-    .card h1 {
-        font-size: 18px;
-        font-weight: bold;
-        text-align: center;
+    .card.zoomOut {
+        transform: scale(0.1)
+    }
+    .card.zoomIn {
+        transform: scale(1.1);
     }
 
-    .card p {
-
+    .card img {
+        margin-top: 10px;
     }
+
 </style>
 <img id="capsidelogo" src="img/avatar-capside.png" alt="capside logo" />
 <img id="pokemonlogo" src="img/pokemon-logo.svg" alt="pokemon logo" />
@@ -62,26 +72,14 @@
 
 const $trackedCards = {};
 
-function createNewCard(element) {
-    const card = $('<div>')
-        .addClass('card')
-        .css('display', 'none')
-        .append($('<img>')
-                    .attr('src', `img/pokemon/${element.info}.png`)
-                    .attr('alt', `${element.label} image.`))
-        .append($('<h2>').text(element.label))
-        .append($('<p>').text(element.id));
-    return card;
-}
-
-
 async function processElement(element) {
-    if (!trackedCards$[element.id]) {
+    if (!$trackedCards[element.id]) {
         console.log(`New element detected: ${element.id}.`);
-        $trackedCard = createNewCard(element);
+        $trackedCard = await createNewCard(element);
         $trackedCard
             .appendTo('#cards')
-            .fadeIn();
+            .fadeIn()
+            .removeClass('zoomOut');
         $trackedCards[element.id] = $trackedCard;
     } else if (Date.now - element.timestamp > 1000*5) {
         console.log(`Removing element ${element.id}.`);
@@ -90,8 +88,9 @@ async function processElement(element) {
         delete tracked[element.id];
     } else {
         console.log('BEAT');
-        await $trackedCards[element.id].animate({'width': '+=20'}).promise();
-        await $trackedCards[element.id].animate({'width': '-=20'}).promise();
+        $trackedCards[element.id].addClass("zoomIn").delay(200).queue(function(){
+            $(this).removeClass("zoomIn").dequeue();
+        });
     }
     
 }
@@ -102,14 +101,55 @@ $(function () {
         const beat = msg.beat;
         // healthbeat message example: 
         //{"beat":{"ip":"52.157.97.226","info":{"pokemon":{"id":"393","name":"Piplup"}},"timestamp":1572966268703}}
+        
+        // stalled data is ignored
+        if (Date.now() - beat.timestamp > 1000*60) return;
+
         const element = {
-            id : beat.ip,
+            id : beat.ip + '-' + beat.info.pokemon.id,
             label : beat.info.pokemon.name,
             info : beat.info.pokemon.id,
             timestamp : beat.timestamp
         };
         processElement(element);
     });
+
+
+    function getPokemon() {
+        const pokemonDB = [
+            {"id" : "4", "name" : "Horsea"},
+            {"id" : "5", "name" : "Seadra"},
+            {"id" : "15", "name" : "Goldeen"},
+            {"id" : "25", "name" : "Seaking"},
+            {"id" : "41", "name" : "Butterfree"},
+            {"id" : "39", "name" : "Staryu"},
+            {"id" : "52", "name" : "Starmie"},
+            {"id" : "64", "name" : "Mr. Mime"},
+            {"id" : "68", "name" : "Scyther"},
+            {"id" : "92", "name" : "Jynx"},
+            {"id" : "95", "name" : "Electabuzz"},
+            {"id" : "112", "name" : "Magmar"},
+            {"id" : "123", "name" : "Pinsir"},
+            {"id" : "130", "name" : "Tauros"},
+            {"id" : "136", "name" : "Magikarp"},
+            {"id" : "143", "name" : "Weedle"},
+            {"id" : "148", "name" : "Gyarados"},
+            {"id" : "169", "name" : "Lapras"},
+            {"id" : "179", "name" : "Ditto"},
+            {"id" : "181", "name" : "Eevee"}
+        ];
+        return pokemonDB[parseInt(pokemonDB.length * Math.random())];
+    }
+    setInterval(function() {
+        const pokemon = getPokemon();
+        const element = {
+            id : pokemon.id,
+            label : pokemon.name,
+            info : pokemon.id,
+            timestamp : Date.now()
+        };
+        processElement(element);        
+    }, 1000);
 });
 
 
