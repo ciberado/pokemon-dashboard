@@ -152,16 +152,16 @@ $(function () {
         const beat = msg.beat;
         // healthbeat message example: 
         //{"beat":{"ip":"52.157.97.226","info":{"pokemon":{"id":"393","name":"Piplup"}},"timestamp":1572966268703}}
-        
+        // console.log(`Message: ${JSON.stringify(msg)}`);
         // stalled data is ignored
         if (Date.now() - beat.timestamp > 1000*STALLED_DATA_TIMEOUT_SECONDS) return;
 
         const
-            id = `http://${beat.ip}:8080`,
+            id = beat.ip + '-' + beat.info.pokemon.name,
             label = beat.info.pokemon.name,
             info = beat.info.pokemon.id,
             timestamp = beat.timestamp;
-        processElement(id, label, info, timestamp);
+        processElement(id, label, info, Date.now());
     });
 
     /* 
