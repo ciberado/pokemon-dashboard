@@ -47,7 +47,7 @@ async function start() {
     return;
   }
   queueSvc = azure.createQueueService();
-  setInterval(() => processMessages(), 1000*2);
+  setInterval(() => processMessages(), 1000*0.1);
 }
 
 module.exports = {
