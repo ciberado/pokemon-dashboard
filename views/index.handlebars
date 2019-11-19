@@ -94,7 +94,7 @@ class Card {
                 .addClass('zoomOut')
                 .appendTo(containerElem);
             const $a = $('<a>')
-                .attr('href', `${this.id}`)
+                .attr('href', `${this.ip}`)
                 .attr('target', `_blank`)
                 .appendTo(this.$elem);
             const $img = $('<img>')
@@ -158,6 +158,7 @@ $(function () {
 
         const
             id = beat.ip + '-' + beat.info.pokemon.name,
+            ip = beat.ip,
             label = beat.info.pokemon.name,
             info = beat.info.pokemon.id,
             timestamp = beat.timestamp;
