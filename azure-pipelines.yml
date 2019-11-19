@@ -29,7 +29,7 @@ stages:
         containerRegistry: 'dockerhub'
         repository: \$(imageName)
         command: 'buildAndPush'
-        dockerfile: 'Dockerfile'
+        dockerfile: 'pokemon-dashboard/Dockerfile'
         tags: |
           \$(tag)
 - stage: Compliance
