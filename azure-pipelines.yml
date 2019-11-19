@@ -30,8 +30,6 @@ stages:
         repository: 'ciberado'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
-        tags: |
-          \$(tag)
 - stage: Compliance
   jobs:
   - job: ExecuteSecurityCompliance
