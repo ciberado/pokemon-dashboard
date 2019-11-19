@@ -2,19 +2,6 @@ trigger:
 - master
 
 stages:
-- stage: UnitTesting
-  jobs:
-  - job: BackendUnitTesting
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - script: echo Run your very cool test suite here
-  - job: FrontendUnitTesting
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - script: echo The fun is in the js tests
-
 - stage: Build
   jobs:
   - job: Build
@@ -30,10 +17,3 @@ stages:
         repository: 'ciberado'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
-- stage: Compliance
-  jobs:
-  - job: ExecuteSecurityCompliance
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-      - script: echo Now trigger that fancy security tool execution
